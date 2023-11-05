@@ -52,6 +52,8 @@ function TypingTest() {
       setTotal(0);
       setCurrCharIndex(-1);
       setCurrChar("");
+      setWPM(0);
+      setTotal(0);
     }
 
     // Begins the test
@@ -76,7 +78,7 @@ function TypingTest() {
     
   }
 
-  // Checks input
+  // Checks key input
   function handleKeyDown({keyCode, key}) {
     // Space bar 
     if (keyCode === 32) {
@@ -88,6 +90,9 @@ function TypingTest() {
     } else if (keyCode === 8) {
       setCurrCharIndex(currCharIndex - 1);
       setCurrChar("");
+        if (currCharIndex <= 0) {
+          setCurrCharIndex(-1);
+        }
     } else {
       setCurrCharIndex(currCharIndex + 1);
       setCurrChar(key);
