@@ -1,5 +1,6 @@
-import {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import axios from "axios";
+import Statistics from './Stastics';
 
 function TypingTest() {
   const NUMB_OF_WORDS = 250;
@@ -23,11 +24,11 @@ function TypingTest() {
   useEffect(function getWordsAPI() {
     async function getSentences() {
         const newWords = await axios.get(`https://random-word-api.vercel.app/api?words=${NUMB_OF_WORDS}`);
-        setWords(newWords.data)
+        setWords(newWords.data);
     }
     
     getSentences();
-  }, [count])
+  }, [count]);
 
   // When the test is started, input becomes usable
   useEffect(() => {
@@ -202,11 +203,17 @@ function TypingTest() {
         </button>
       </div>
       <div className={visible ? "section" : "is-invisible"}>
-        <h1 className={"has-text-primary-light"}> Select how long the test is: </h1>
-        <button className={"button is-info"} value={10} onClick={selectTime}>10</button>
-        <button className={"button is-info"} value={30} onClick={selectTime}>30</button>
-        <button className={"button is-info"} value={60} onClick={selectTime}>60</button>
-        <button className={"button is-info"} value={120} onClick={selectTime}>120</button>
+        <div className='columns'>
+          <div className="column has-text-centered">
+            <h1 className={"has-text-primary-light"}> Select how long the test is: </h1>
+            {[10, 30, 60, 120].map((val) => (
+              <button className={"button is-info"} value={val} onClick={selectTime} key={val}>{val}</button>
+            ))}
+          </div>
+          <div className="column has-text-centered">
+            <Statistics time={seconds}/>
+          </div>
+        </div>
       </div>
     </div>
   );
