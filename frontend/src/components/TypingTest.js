@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react'
 import axios from "axios";
 import Statistics from './Stastics';
+import { BASE_URL } from '../constants';
 
 function TypingTest() {
   const NUMB_OF_WORDS = 250;
@@ -18,6 +19,7 @@ function TypingTest() {
   const [count, setCount] = useState(0); 
   const [total, setTotal] = useState(0);
   const [wpm, setWPM] = useState(0);
+  const [statisticCount, setStatisticCount] = useState(0);
   const textInput = useRef(null);
   
   // Gets the words from the API for the test
@@ -26,8 +28,12 @@ function TypingTest() {
         const newWords = await axios.get(`https://random-word-api.vercel.app/api?words=${NUMB_OF_WORDS}`);
         setWords(newWords.data);
     }
-    
     getSentences();
+    if (count >= 1) {
+      sendToDatabase();
+    }
+    setTimeout(handleStatisticCount, 500);
+
   }, [count]);
 
   // When the test is started, input becomes usable
@@ -40,6 +46,11 @@ function TypingTest() {
   // Used to rerun the API call to get a different set of words
   const handleCount = () => { 
     setCount(prevCount => prevCount + 1);
+  }
+
+  // Used to rerun the statistic average whenever there is a new entry
+  const handleStatisticCount = () => {
+    setStatisticCount(prevCount => prevCount + 1);
   }
 
   function start() {
@@ -141,6 +152,13 @@ function TypingTest() {
     setCountDown(e.target.value);
   }
 
+  // Sends the test results to the backend
+  async function sendToDatabase() {
+    if (wpm > 0) {
+      await axios.post(`${BASE_URL}/add/${seconds}`, {wpm});
+    }
+  }
+
   return (
     <div className="App">
       <div className="section">
@@ -211,7 +229,7 @@ function TypingTest() {
             ))}
           </div>
           <div className="column has-text-centered">
-            <Statistics time={seconds}/>
+            <Statistics time={seconds} count={statisticCount}/>
           </div>
         </div>
       </div>

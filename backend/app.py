@@ -32,19 +32,18 @@ def get_average(time):
     return jsonify({'average': int(average)})
 
 @app.route("/add/<time>", methods=["POST"])
-def add_ten_score(time):
+def add_score(time):
     """ Adds a new wpm test score to the database in the user's chosen test"""
     try:
         response = request.json
         wpm = response['wpm']
-
-        if time == 10:
+        if time == "10":
             new_score = TenSecond(wpm=wpm)
-        elif time == 30:
+        elif time == "30":
             new_score = ThirtySecond(wpm=wpm)
-        elif time == 60:
+        elif time == "60":
             new_score = SixtySecond(wpm=wpm)
-        elif time == 120:
+        elif time == "120":
             new_score = OneTwentySecond(wpm=wpm)
         else:
             return make_response(jsonify({"error": "Path not found"}), 500)

@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import axios from "axios";
 import { BASE_URL } from "../constants";
 
-function Statistics({ time }) {
+function Statistics({ time, count }) {
     const [average, setAverage] = useState();
 
     useEffect(function getAverageAPI() {
@@ -12,7 +12,7 @@ function Statistics({ time }) {
             setAverage(newAverage.data.average);
         }
         getAverage();
-    }, [time]); 
+    }, [time, count]); 
 
     if (!average) {
         return(
