@@ -141,7 +141,7 @@ function TypingTest() {
 
   // Calculates the WPM based off the total number of correct characters
   function calculateWPM() {
-    const divider = (seconds/60)
+    const divider = (seconds/60);
     const totalChars = Math.round((total/5)/divider);
     setWPM(totalChars);
   }
@@ -215,8 +215,8 @@ function TypingTest() {
         </div>
       )}
          
-      <div className="section">
-        <button className={visible ? "button is-info is-fullwidth" : "is-invisible"} onClick={start}>
+      <div className="column is-half is-offset-one-quarter">
+        <button className={visible ? "button is-info is-large is-fullwidth" : "is-invisible"} onClick={start}>
           {count > 0 ? "Restart" : "Start"}
         </button>
       </div>

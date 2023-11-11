@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, make_response
 from models import db, connect_db, TenSecond, ThirtySecond, SixtySecond, OneTwentySecond
 from flask_cors import CORS
+from helper import biggestValue
 
 app = Flask(__name__)
 CORS(app)
@@ -25,11 +26,12 @@ def get_average(time):
         scores = OneTwentySecond.query.all()
     else:
         return make_response(jsonify({"error": "Path not found"}), 500)
+    highest = biggestValue(scores)
     total = 0
     for s in scores:
         total = total + s.wpm
     average = total/len(scores)
-    return jsonify({'average': int(average)})
+    return jsonify({'average': int(average), 'highest': highest})
 
 @app.route("/add/<time>", methods=["POST"])
 def add_score(time):

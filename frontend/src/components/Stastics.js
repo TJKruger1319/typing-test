@@ -4,12 +4,14 @@ import { BASE_URL } from "../constants";
 
 function Statistics({ time, count }) {
     const [average, setAverage] = useState();
+    const [biggest, setBiggest] = useState(0);
 
     useEffect(function getAverageAPI() {
         // Gets the average of all wpms from the database based on the user's chosen test
         async function getAverage() {
             const newAverage = await axios.get(`${BASE_URL}/average/${time}`);
             setAverage(newAverage.data.average);
+            setBiggest(newAverage.data.highest);
         }
         getAverage();
     }, [time, count]); 
@@ -23,6 +25,8 @@ function Statistics({ time, count }) {
             <div>
                 <h1 className={"has-text-primary-light is-size-5"}> Average wpm for {time} seconds:</h1>
                 <p className="has-text-info is-size-3">{average}</p>
+                <h1 className={"has-text-primary-light is-size-5"}> High score wpm for {time} seconds:</h1>
+                <p className="has-text-info is-size-3">{biggest}</p>
             </div>
         );
     }
