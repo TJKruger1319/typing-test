@@ -1,10 +1,12 @@
 import React, {useState, useEffect, useRef} from 'react'
 import axios from "axios";
-import Statistics from './Stastics';
 import { BASE_URL } from '../constants';
+import Started from './Started';
+import Finished from './Finished';
+import Top from './Top';
+import Bottom from './Bottom';
 
 function TypingTest() {
-  const NUMB_OF_WORDS = 250;
   const [seconds, setSeconds] = useState(60);
   const [words, setWords] = useState([]);
   const [countDown, setCountDown] = useState(seconds);
@@ -20,9 +22,10 @@ function TypingTest() {
   const [total, setTotal] = useState(0);
   const [wpm, setWPM] = useState(0);
   const [statisticCount, setStatisticCount] = useState(0);
+  const NUMB_OF_WORDS = 250;
   const textInput = useRef(null);
   
-  // Gets the words from the API for the test
+      // Gets the words from the API for the test
   useEffect(function getWordsAPI() {
     async function getSentences() {
         const newWords = await axios.get(`https://random-word-api.vercel.app/api?words=${NUMB_OF_WORDS}`);
@@ -30,11 +33,12 @@ function TypingTest() {
     }
     getSentences();
     if (count >= 1) {
-      sendToDatabase();
+        sendToDatabase();
     }
     setTimeout(handleStatisticCount, 500);
 
   }, [count]);
+
 
   // When the test is started, input becomes usable
   useEffect(() => {
@@ -161,78 +165,42 @@ function TypingTest() {
 
   return (
     <div className="App">
-      <div className="section">
-        <div className="is-size-1 has-text-centered ">
-          <h2 className={visible ? "is-hidden" : "has-text-primary"}>{countDown}</h2>
-          <h1 className={visible ? "has-text-primary-light" : "is-hidden"}>Typing Test!</h1>
-          <h5 className={visible ? "has-text-primary-light" : "is-hidden"}>Test time: {seconds} seconds</h5>
-        </div>
-
-      </div>
+      <Top
+        visible={visible}
+        countDown={countDown}
+        seconds={seconds}
+      />
       {status === 'started' && (
-        <div className="section" >
-          <div className="card">
-            <div className="card-content">
-              <div className="content">
-                {words.map((word, i) => (
-                  <span key={i}>
-                    <span>
-                      {word.split("").map((char, idx) => (
-                        <span className={getCharClass(i, idx, char)} key={idx}>{char}</span>
-                      )) }
-                    </span>
-                    <span> </span>
-                  </span>
-                ))}
-              </div>
-                <div className="control is-expanded section">
-                    <input ref={textInput} disabled={status !== "started"} type="text" className={visible ? "is-hidden" : "input"} onKeyDown={handleKeyDown} value={currInput} onChange={(e) => setCurrInput(e.target.value)}  />
-                </div> 
-            </div>
-          </div>
-        </div>
+        <Started 
+          words={words} 
+          status={status}
+          getCharClass={getCharClass}
+          textInput={textInput}
+          visible={visible}
+          handleKeyDown={handleKeyDown}
+          currInput={currInput}
+          setCurrInput={setCurrInput}
+          setWords={setWords}
+          count={count}
+          sendToDatabase={sendToDatabase}
+          handleStatisticCount={handleStatisticCount}
+        />
       )}
       {status === 'finished' && (
-        <div className="section">
-          <div className="columns">
-            <div className="column has-text-centered">
-              <p className="is-size-5 has-text-primary-light">Words per minute:</p>
-              <p className="has-text-primary is-size-1">
-                {wpm}
-              </p>
-            </div>
-            <div className="column has-text-centered">
-              <p className="is-size-5 has-text-primary-light">Accuracy:</p>
-              {correct !== 0 ? (
-                <p className="has-text-info is-size-1">
-                  {Math.round((correct / (correct + incorrect)) * 100)}%
-                </p>
-              ) : (
-                <p className="has-text-info is-size-1">0%</p>
-              )}
-            </div>
-          </div>
-        </div>
+        <Finished 
+          wpm={wpm}
+          correct={correct}
+          incorrect={incorrect}
+        />
       )}
-         
-      <div className="column is-half is-offset-one-quarter">
-        <button className={visible ? "button is-info is-large is-fullwidth" : "is-invisible"} onClick={start}>
-          {count > 0 ? "Restart" : "Start"}
-        </button>
-      </div>
-      <div className={visible ? "section" : "is-invisible"}>
-        <div className='columns'>
-          <div className="column has-text-centered">
-            <h1 className={"has-text-primary-light"}> Select how long the test is: </h1>
-            {[10, 30, 60, 120].map((val) => (
-              <button className={"button is-info"} value={val} onClick={selectTime} key={val}>{val}</button>
-            ))}
-          </div>
-          <div className="column has-text-centered">
-            <Statistics time={seconds} count={statisticCount}/>
-          </div>
-        </div>
-      </div>
+      <Bottom 
+        visible={visible}
+        start={start}
+        count={count}
+        selectTime={selectTime}
+        seconds={seconds}
+        statisticCount={statisticCount}
+      />
     </div>
   );
 }
