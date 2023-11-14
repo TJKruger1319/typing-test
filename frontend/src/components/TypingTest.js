@@ -28,8 +28,12 @@ function TypingTest() {
       // Gets the words from the API for the test
   useEffect(function getWordsAPI() {
     async function getSentences() {
+        try {
         const newWords = await axios.get(`https://random-word-api.vercel.app/api?words=${NUMB_OF_WORDS}`);
         setWords(newWords.data);
+        } catch(e) {
+          setWords(undefined);
+        }
     }
     getSentences();
     if (count >= 1) {
@@ -161,6 +165,12 @@ function TypingTest() {
     if (wpm > 0) {
       await axios.post(`${BASE_URL}/add/${seconds}`, {wpm});
     }
+  }
+
+  if (!words) {
+    return (
+      <h1 className='has-text-primary-light'>Error recieving words, please try again later.</h1>
+    )
   }
 
   return (
