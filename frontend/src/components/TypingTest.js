@@ -65,15 +65,7 @@ function TypingTest() {
 
     // Resets the test
     if (status === 'finished') {
-      
-      setCurrWordIndex(0);
-      setCorrect(0);
-      setIncorrect(0);
-      setTotal(0);
-      setCurrCharIndex(-1);
-      setCurrChar("");
-      setWPM(0);
-      setTotal(0);
+      setTimeout(reset, 1000);
     }
 
     // Begins the test
@@ -167,6 +159,17 @@ function TypingTest() {
     }
   }
 
+  function reset() {
+    setCurrWordIndex(0);
+    setCorrect(0);
+    setIncorrect(0);
+    setTotal(0);
+    setCurrCharIndex(-1);
+    setCurrChar("");
+    setWPM(0);
+    setTotal(0);
+  }
+
   if (!words) {
     return (
       <h1 className='has-text-primary-light'>Error recieving words, please try again later.</h1>
@@ -210,6 +213,9 @@ function TypingTest() {
         selectTime={selectTime}
         seconds={seconds}
         statisticCount={statisticCount}
+        handleStatisticCount={handleStatisticCount}
+        wpm={wpm}
+        status={status}
       />
     </div>
   );

@@ -40,3 +40,33 @@ class OneTwentySecond(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     wpm = db.Column(db.Integer, nullable=False)
 
+class Highest10(db.Model):
+
+    __tablename__ = "highest_10"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text, nullable=False)
+
+class Highest30(db.Model):
+
+    __tablename__ = "highest_30"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text, nullable=False)
+
+class Highest60(db.Model):
+
+    __tablename__ = "highest_60"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text, nullable=False)
+
+class Highest120(db.Model):
+
+    __tablename__ = "highest_120"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text, nullable=False)
+
+
+
