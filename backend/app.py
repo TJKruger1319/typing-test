@@ -40,7 +40,7 @@ def get_statistics(time):
 
 @app.route("/add/<time>", methods=["POST"])
 def add_score(time):
-    """ Adds a new wpm test score to the database in the user's chosen test"""
+    """ Adds a new wpm test score to the database of the chosen test type"""
     try:
         response = request.json
         wpm = response['wpm']
@@ -62,11 +62,10 @@ def add_score(time):
     
 @app.route("/high_score/<time>", methods=["POST"])
 def new_high_score(time):
-    """ Adds a new wpm test score to the database in the user's chosen test"""
+    """ Updates the username with the highest score of the chosen test type"""
     try:
         response = request.json
         title = response['newTitle']
-        print(title, "******************")
         if time == "10":
             old_title = Highest10.query.filter_by(id=1)
         elif time == "30":
@@ -77,7 +76,6 @@ def new_high_score(time):
             old_title = Highest120.query.filter_by(id=1)
         else:
             return make_response(jsonify({"error": "Path not found"}), 500)
-        print(old_title, "**********************")
         old_title.update({'title': title})
         db.session.commit()
         return make_response(jsonify({"message": "Title successfully added", "title": title}), 200)

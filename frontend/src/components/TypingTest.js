@@ -150,6 +150,7 @@ function TypingTest() {
   const selectTime = e => {
     setSeconds(e.target.value);
     setCountDown(e.target.value);
+    reset();
   }
 
   // Sends the test results to the backend
@@ -159,6 +160,7 @@ function TypingTest() {
     }
   }
 
+  // Resets all the variables used in the test
   function reset() {
     setCurrWordIndex(0);
     setCorrect(0);
@@ -170,6 +172,7 @@ function TypingTest() {
     setTotal(0);
   }
 
+  // Shows an error message to the user if words are not recieved from the API
   if (!words) {
     return (
       <h1 className='has-text-primary-light'>Error recieving words, please try again later.</h1>

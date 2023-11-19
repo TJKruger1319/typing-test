@@ -13,7 +13,7 @@ function Statistics({ time, average, biggest, title }) {
     } else {
         return (
             <div>
-                <h1 className="has-text-primary-light is-size-2">Statistics for all users</h1>
+                <h1 className="has-text-primary-light is-size-2">Statistics of all users</h1>
                 <h1 className={"has-text-primary-light is-size-5"}> Average wpm for {time} seconds:</h1>
                 <p className="has-text-info is-size-3">{average}</p>
                 <h1 className={"has-text-primary-light is-size-5"}> High score wpm for {time} seconds:</h1>
