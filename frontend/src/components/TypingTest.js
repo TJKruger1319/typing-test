@@ -151,6 +151,8 @@ function TypingTest() {
     setSeconds(e.target.value);
     setCountDown(e.target.value);
     reset();
+    setStatus("waiting");
+    setCount(0);
   }
 
   // Sends the test results to the backend
