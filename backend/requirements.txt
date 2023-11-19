@@ -15,7 +15,6 @@ Flask-SQLAlchemy==2.4.1
 Flask-WTF==0.14.2
 greenlet==2.0.2
 gunicorn==21.2.0
-gyp==0.1
 httplib2==0.20.2
 importlib-metadata==4.6.4
 ipython==8.14.0
