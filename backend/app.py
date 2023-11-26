@@ -13,6 +13,7 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 app.app_context().push()
 connect_db(app)
+db.create_all()
 
 @app.route('/statistics/<int:test_duration>', methods=['GET'])
 def get_typing_stats(test_duration):
