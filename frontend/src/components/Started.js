@@ -17,9 +17,11 @@ function Started({words, status, getCharClass, textInput, visible, handleKeyDown
                   </span>
                 ))}
               </div>
+              <div className="field has-addons has-text-centered">
                 <div className="control is-expanded section">
-                    <input ref={textInput} disabled={status !== "started"} type="text" className={visible ? "is-hidden" : " is-size-2"} onKeyDown={handleKeyDown} value={currInput} onChange={(e) => setCurrInput(e.target.value)}  />
+                  <input ref={textInput} disabled={status !== "started"} type="text" className={visible ? "is-hidden" : " is-size-2"} onKeyDown={handleKeyDown} value={currInput} onChange={(e) => setCurrInput(e.target.value)}  />
                 </div> 
+              </div>
             </div>
           </div>
         </div>
