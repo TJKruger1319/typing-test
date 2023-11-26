@@ -22,6 +22,7 @@ function TypingTest() {
   const [total, setTotal] = useState(0);
   const [wpm, setWPM] = useState(0);
   const [statisticCount, setStatisticCount] = useState(0);
+  const [userID, setUserID] = useState();
   const NUMB_OF_WORDS = 250;
   const textInput = useRef(null);
   
@@ -158,7 +159,13 @@ function TypingTest() {
   // Sends the test results to the backend
   async function sendToDatabase() {
     if (wpm > 0) {
-      await axios.post(`${BASE_URL}/add/${seconds}`, {wpm});
+      try {
+        const response = await axios.post(`${BASE_URL}/add/${seconds}`, {wpm, "username": "Anonymous"});
+        console.log(response);
+        setUserID(response.data.user_id);
+      } catch(e) {
+        console.log(e);
+      }
     }
   }
 
@@ -221,6 +228,7 @@ function TypingTest() {
         handleStatisticCount={handleStatisticCount}
         wpm={wpm}
         status={status}
+        user_id={userID}
       />
     </div>
   );

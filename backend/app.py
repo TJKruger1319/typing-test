@@ -1,7 +1,7 @@
-from flask import Flask, jsonify, request, make_response
-from models import db, connect_db, TenSecond, ThirtySecond, SixtySecond, OneTwentySecond, Highest10, Highest30, Highest60, Highest120
+from flask import Flask, jsonify, request
+from models import db, connect_db, TestResult, User
 from flask_cors import CORS
-from helper import biggestValue
+from sqlalchemy import func
 import os
 
 app = Flask(__name__)
@@ -14,71 +14,107 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.app_context().push()
 connect_db(app)
 
-@app.route("/statistics/<int:time>")
-def get_statistics(time):
-    """ Gets the average for each entry in the chosen test"""
-    if time == 10:
-        scores = TenSecond.query.all()
-        high_score = Highest10.query.first()
-    elif time == 30:
-        scores = ThirtySecond.query.all()
-        high_score= Highest30.query.first()
-    elif time == 60:
-        scores = SixtySecond.query.all()
-        high_score = Highest60.query.first()
-    elif time == 120:
-        scores = OneTwentySecond.query.all()
-        high_score = Highest120.query.first()
-    else:
-        return make_response(jsonify({"error": "Path not found"}), 500)
-    title = high_score.title
-    highest = biggestValue(scores)
-    total = 0
-    for s in scores:
-        total = total + s.wpm
-    average = total/len(scores)
-    return jsonify({'average': int(average), 'highest': highest, 'title': title})
+@app.route('/statistics/<int:test_duration>', methods=['GET'])
+def get_typing_stats(test_duration):
+    try:
+        # Query to get the highest score and the username of the person who got the highest score
+        highest_score_query = (
+            db.session.query(TestResult.wpm, User.username)
+            .join(User)
+            .filter(TestResult.test_duration == test_duration)
+            .order_by(TestResult.wpm.desc())
+            .first()
+        )
 
-@app.route("/add/<time>", methods=["POST"])
-def add_score(time):
+        if not highest_score_query:
+            raise ValueError("No results found for that test duration.")
+
+        # Query to get the average of the first 100 scores for the specified test duration
+        average_score_query = (
+            db.session.query(func.avg(TestResult.wpm))
+            .filter(TestResult.test_duration == test_duration)
+            .limit(100)
+            .scalar()
+        )
+
+        average_wpm = int(average_score_query) if average_score_query is not None else None
+
+        highest_score = {
+            'wpm': highest_score_query[0],
+            'username': highest_score_query[1]
+        }
+
+        return jsonify({
+            'highest_score': highest_score,
+            'average_score': average_wpm
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500  # Internal Server Error
+
+@app.route("/add/<int:test_duration>", methods=["POST"])
+def add_score(test_duration):
     """ Adds a new wpm test score to the database of the chosen test type"""
     try:
-        response = request.json
-        wpm = response['wpm']
-        if time == "10":
-            new_score = TenSecond(wpm=wpm)
-        elif time == "30":
-            new_score = ThirtySecond(wpm=wpm)
-        elif time == "60":
-            new_score = SixtySecond(wpm=wpm)
-        elif time == "120":
-            new_score = OneTwentySecond(wpm=wpm)
+        # Assuming the request data is in JSON format with keys 'username', 'wpm', and 'test_duration'
+        data = request.json
+
+        # Extract data from the request
+        username = data['username']
+        wpm = data['wpm']
+
+        # Check if the user is specified in the request
+        if username:
+            user = User.query.filter_by(username=username).first()
+
+            # If the user doesn't exist, create a new user
+            if not user:
+                user = User(username=username)
+                db.session.add(user)
+                db.session.commit()
         else:
-            return make_response(jsonify({"error": "Path not found"}), 500)
-        db.session.add(new_score)
+            # If the user is not specified, create an anonymous user
+            user = User(username='Anonymous')
+            db.session.add(user)
+            db.session.commit()
+
+        # Add a new typing test result
+        test_result = TestResult(wpm=wpm, test_duration=test_duration, user=user)
+        db.session.add(test_result)
         db.session.commit()
-        return make_response(jsonify({"message": "Score successfully added", "id": new_score.id}), 200)
+
+        # Return the user_id along with a success message
+        return jsonify({
+            'message': 'Typing test result added successfully',
+            'user_id': user.id
+            })
+
     except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 500)
-    
-@app.route("/high_score/<time>", methods=["POST"])
-def new_high_score(time):
-    """ Updates the username with the highest score of the chosen test type"""
+        return jsonify({'error': str(e)}), 500  # Internal Server Error
+
+@app.route('/update_username/<int:user_id>', methods=['PATCH'])
+def update_username(user_id):
     try:
+        # Find the user by user_id
+        user = User.query.get(user_id)
+
+        if not user:
+            raise ValueError("User not found.")
+
+        # Get the new username from the request data
         response = request.json
-        title = response['newTitle']
-        if time == "10":
-            old_title = Highest10.query.filter_by(id=1)
-        elif time == "30":
-            old_title = Highest30.query.filter_by(id=1)
-        elif time == "60":
-            old_title = Highest60.query.filter_by(id=1)
-        elif time == "120":
-            old_title = Highest120.query.filter_by(id=1)
-        else:
-            return make_response(jsonify({"error": "Path not found"}), 500)
-        old_title.update({'title': title})
+        new_username = response["new_username"]
+
+        if not new_username:
+            raise ValueError("New username not provided in the request.")
+
+        # Update the username
+        user.username = new_username
         db.session.commit()
-        return make_response(jsonify({"message": "Title successfully added", "title": title}), 200)
+
+        return jsonify({'message': f'Username updated to {new_username} successfully'})
+
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400  # Bad Request
     except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 500)
+        return jsonify({'error': str(e)}), 500  # Internal Server Error

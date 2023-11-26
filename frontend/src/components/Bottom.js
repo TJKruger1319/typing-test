@@ -3,7 +3,7 @@ import Statistics from "./Stastics";
 import { BASE_URL } from "../constants";
 import axios from "axios";
 
-function Bottom({visible, start, count, selectTime, seconds, statisticCount, wpm, status, handleStatisticCount}) {
+function Bottom({visible, start, count, selectTime, seconds, statisticCount, wpm, status, handleStatisticCount, user_id}) {
     const [average, setAverage] = useState();
     const [biggest, setBiggest] = useState(0);
     const [title, setTitle] = useState("");
@@ -15,10 +15,11 @@ function Bottom({visible, start, count, selectTime, seconds, statisticCount, wpm
         async function getStatistics() {
             try {
             const newAverage = await axios.get(`${BASE_URL}/statistics/${seconds}`);
-            setAverage(newAverage.data.average);
-            setBiggest(newAverage.data.highest);
-            setTitle(newAverage.data.title);
+            setAverage(newAverage.data.average_score);
+            setBiggest(newAverage.data.highest_score.wpm);
+            setTitle(newAverage.data.highest_score.username);
             } catch(e) {
+                console.log(e);
                 setAverage("failure");
             }
         }
@@ -27,7 +28,7 @@ function Bottom({visible, start, count, selectTime, seconds, statisticCount, wpm
 
     // Sends the new title to the backend
     async function updateTitle() {
-        await axios.post(`${BASE_URL}/high_score/${seconds}`, {newTitle});
+        await axios.patch(`${BASE_URL}/update_username/${user_id}`, {"new_username": newTitle});
     }
 
     // Handles updates to the input in the form for the highest score user
